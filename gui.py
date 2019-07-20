@@ -1,6 +1,6 @@
 import cv2
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QLineEdit, QMessageBox
 from PyQt5.QtGui import QIcon, QPixmap
 
 
@@ -14,37 +14,42 @@ class App(QWidget):
         self.width = 1024
         self.height = 600
         self.initUI()
-        self.btnTest()
+
+    # button open
+    def btnOpen(self):
+        btn_open = QPushButton('OPEN', self)
+        # button.setToolTip('This is an example button')
+        btn_open.move(20, 20)
+        btn_open.clicked.connect(self.click_open)
+
+    # button exit
+    def btnExit(self):
+        btn_exit = QPushButton('EXIT', self)
+        # button.setToolTip('This is an example button')
+        btn_exit.move(20, 60)
+        btn_exit.clicked.connect(self.click_exit)
 
     def btnTest(self):
         # button tes
         btn_test = QPushButton('CLICK', self)
         # button.setToolTip('This is an example button')
-        btn_test.move(50, 50)
-        # btn_test.clicked.connect(self.click_show)
+        btn_test.move(20, 100)
+        btn_test.clicked.connect(self.click_show)
 
-    # button open
-    def btnOpen(self):
-        button = QPushButton('OPEN', self)
-        # button.setToolTip('This is an example button')
-        button.move(20, 20)
-        button.clicked.connect(self.click_open)
+    # Create textbox
 
-    # button exit
-    def btnExit(self):
-        button = QPushButton('EXIT', self)
-        # button.setToolTip('This is an example button')
-        button.move(20, 60)
-        button.clicked.connect(self.click_exit)
+    def texBox(self):
+        self.text_show = QLineEdit(self)
+        self.text_show.move(120, 20)
+        self.text_show.resize(280, 40)
 
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+    def click_show(self):
+        textboxValue = self.text_show.text()
+        QMessageBox.question(self, 'ADAS', textboxValue,
+                             QMessageBox.Ok, QMessageBox.Ok)
+        self.text_show.setText("")
 
-        # self.btnTest()
-        self.btnExit()
-        self.btnOpen()
-        self.show()
+    # action click open
 
     def click_open(self):
         options = QFileDialog.Options()
@@ -53,6 +58,18 @@ class App(QWidget):
             self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
         if fileName:
             return fileName
+    # initUI
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        self.btnExit()
+        self.btnOpen()
+        self.btnTest()
+        self.texBox()
+
+        self.show()
 
     def click_exit(self):
         self.close()
