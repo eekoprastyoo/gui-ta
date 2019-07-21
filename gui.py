@@ -1,6 +1,8 @@
 import cv2
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QLineEdit, QMessageBox
+
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QLineEdit, QMessageBox, QVBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap
 
 
@@ -37,7 +39,6 @@ class App(QWidget):
         btn_test.clicked.connect(self.click_show)
 
     # Create textbox
-
     def texBox(self):
         self.text_show = QLineEdit(self)
         self.text_show.move(120, 20)
@@ -49,26 +50,36 @@ class App(QWidget):
                              QMessageBox.Ok, QMessageBox.Ok)
         self.text_show.setText("")
 
-    # action click open
+    def title_img_ori(self):
+        self.title_img_ori = QLabel(self)
+        self.title_img_ori.setText("Captured Image")
+        self.title_img_ori.move(200, 10)
 
+    def label_img_ori(self):
+        self.label_img_ori = QLabel(self)
+        self.label_img_ori.setPixmap(QPixmap())
+        self.label_img_ori.resize(250, 250)
+        self.label_img_ori.move(200, 40)
+        self.label_img_ori.setScaledContents(True)
+
+    # action click open
     def click_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(
-            self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
+            self, "QFileDialog.getOpenFileName()", "", "All Files (*)", options=options)
         if fileName:
-            return fileName
-    # initUI
+            self.label_img_ori.setPixmap(QPixmap(fileName))
 
+    # initUI
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         self.btnExit()
         self.btnOpen()
-        self.btnTest()
-        self.texBox()
-
+        self.label_img_ori()
+        self.title_img_ori()
         self.show()
 
     def click_exit(self):
