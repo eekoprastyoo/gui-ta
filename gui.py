@@ -1,13 +1,12 @@
 import cv2
-import sys
-
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QLineEdit, QMessageBox, QVBoxLayout
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QLineEdit, QMessageBox, QVBoxLayout, QMainWindow
+from PyQt5.QtGui import QIcon, QPixmap, QImage
+
+fname = ""
 
 
-class App(QWidget):
-
+class App(QMainWindow):
     def __init__(self):
         super().__init__()
         self.title = 'Advance Driver Asisten System'
@@ -17,18 +16,44 @@ class App(QWidget):
         self.height = 600
         self.initUI()
 
+    # initUI
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        # self.central_widget = QWidget()
+        # self.button_frame = QPushButton('Acquire Frame', self.central_widget)
+        # self.button_movie = QPushButton('Start Movie', self.central_widget)
+        # self.layout = QVBoxLayout(self.central_widget)
+        # self.layout.addWidget(self.button_frame)
+        # self.layout.addWidget(self.button_movie)
+        # self.setCentralWidget(self.central_widget)
+        self.btnOpen()
+        self.btnGray()
+        self.btnExit()
+        self.label_img_ori()
+        self.title_img_ori()
+        self.show()
+
     # button open
+
     def btnOpen(self):
         btn_open = QPushButton('OPEN', self)
         # button.setToolTip('This is an example button')
         btn_open.move(20, 20)
         btn_open.clicked.connect(self.click_open)
 
+    def btnGray(self):
+        btn_open = QPushButton('GRAY', self)
+        # button.setToolTip('This is an example button')
+        btn_open.move(20, 60)
+        btn_open.clicked.connect(self.imGray)
+
     # button exit
     def btnExit(self):
         btn_exit = QPushButton('EXIT', self)
         # button.setToolTip('This is an example button')
-        btn_exit.move(20, 60)
+        btn_exit.move(20, 100)
         btn_exit.clicked.connect(self.click_exit)
 
     def btnTest(self):
@@ -64,29 +89,54 @@ class App(QWidget):
 
     # action click open
     def click_open(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(
-            self, "QFileDialog.getOpenFileName()", "", "All Files (*)", options=options)
-        if fileName:
-            self.label_img_ori.setPixmap(QPixmap(fileName))
+        global fname
+        # options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        # fname, _ = QFileDialog.getOpenFileName(
+        #     self, "QFileDialog.getOpenFileName()", "", "All Files (*)", options=options)
 
-    # initUI
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        fname, filter = QFileDialog.getOpenFileName(
+            self, 'Open File', "Image Files(*)")
 
-        self.btnExit()
-        self.btnOpen()
-        self.label_img_ori()
-        self.title_img_ori()
-        self.show()
+        if fname:
+            self.loadImage(fname)
+
+    def loadImage(self, fname):
+        self.img_ori = cv2.imread(fname, 1)
+        self.displayImageOri()
+
+    def imGray(self):
+        self.img_ori = cv2.imread(fname, 1)
+        self.img_gray = cv2.cvtColor(self.img_ori, cv2.COLOR_BGR2GRAY)
+        self.height, self.width = self.img_gray.shape[:2]
+
+        qformat = QtGui.QImage.Format_Grayscale8
+
+        img = QtGui.QImage(self.img_gray, self.width,
+                           self.height, self.img_gray.strides[0], qformat)
+
+        img = QPixmap.fromImage(img)
+        self.label_img_ori.setPixmap(img)
+        self.label_img_ori.setAlignment(QtCore.Qt.AlignCenter)
+
+    def displayImageOri(self):
+        qformat = QImage.Format_RGB888
+        self.height, self.width = self.img_ori.shape[:2]
+
+        img = QtGui.QImage(self.img_ori.data, self.width,
+                           self.height, self.img_ori.strides[0], qformat)
+
+        img = img.rgbSwapped()
+
+        img = QPixmap.fromImage(img)
+        self.label_img_ori.setPixmap(img)
+        self.label_img_ori.setAlignment(QtCore.Qt.AlignCenter)
 
     def click_exit(self):
         self.close()
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     ex = App()
-    sys.exit(app.exec_())
+    app.exit(app.exec_())
